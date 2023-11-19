@@ -29,13 +29,13 @@ const Table = ({values, titles, sortFunc}) => {
       <thead>
         <tr>
           {
-            titles.map(t => <th onClick={() => sortFunc(t)}>{t}</th>)
+            titles.map((t, i) => <th key={i} onClick={() => sortFunc(t)}>{t}</th>)
           }
         </tr>
       </thead>
       <tbody>
          {
-           values.map(v => <tr>{titles.map(t => <td>{v[t]}</td>)}</tr>)
+           values.map((v,i) => <tr key={i}>{titles.map((t,j) => <td key={j}>{v[t]}</td>)}</tr>)
          }
       </tbody>
     </table>
