@@ -1,94 +1,137 @@
-import Image from 'next/image'
+"use client"
+
 import styles from './page.module.css'
+import { useState } from 'react';
+
+const Parser = require('expr-eval').Parser;
+
+const rowParser = (text, row) =>  {
+
+  const parser = new Parser();
+
+  const lines = text.split(";");
+  for (let i=0; i < lines.length -1; i++) {
+    const lineSplit = lines[i].split("=");
+    const varName = lineSplit[0];
+
+    const formula = lineSplit[1];
+    const expr = parser.parse(formula);
+
+    const res = expr.evaluate(row);
+    row[varName] = res;
+  }
+  return row;
+};
+
+const Table = ({values, titles, sortFunc}) => {
+  return (
+    <table>
+      <thead>
+        <tr>
+          {
+            titles.map(t => <th onClick={() => sortFunc(t)}>{t}</th>)
+          }
+        </tr>
+      </thead>
+      <tbody>
+         {
+           values.map(v => <tr>{titles.map(t => <td>{v[t]}</td>)}</tr>)
+         }
+      </tbody>
+    </table>
+  )
+};
 
 export default function Home() {
+
+  const [values, setValues] = useState([]);
+  const [titles, setTitles] = useState([]);
+  const [file, setFile] = useState(null);
+  const [formula, setFormula] = useState('');
+
+  const sortFunc = (col) => {
+      const vals = [...values];
+      vals.sort((a, b) => b[col] - a[col]);
+      setValues(vals);
+  }
+
+  const formulaChange = (event) => {
+    setFormula(event.target.value);
+  }
+
+  const uploadToClient = (event) => {
+    if (formula == '') {
+       window.alert('Formula cannot be blank');
+       return;
+    } else {
+      if (event.target.files && event.target.files[0]) {
+	setFile(event.target.files[0]);
+      }
+    }
+  }
+
+  const run = () => {
+    const reader = new FileReader();
+    reader.addEventListener(
+      "load",
+      () => {
+	const contents = reader.result;
+	const parser = new DOMParser();
+	const parsedDocument = parser.parseFromString(contents, "text/html");
+	const table = parsedDocument.getElementsByTagName("table");
+
+	const data = {}
+
+	const tableHeaders = parsedDocument.getElementsByTagName("th");
+	const titles = [];
+	for (let i = 0; i < tableHeaders.length; i++) {
+	  titles.push(tableHeaders[i].innerText);
+	}
+
+	const values = [];
+	const tableRows = parsedDocument.getElementsByTagName("tr");
+	for (let i = 1; i < tableRows.length; i++) {
+	  const tableRowValues = tableRows[i].getElementsByTagName("td");
+	  const tmp = {};
+	  for (let j = 0; j < tableRowValues.length; j++) {
+	    tmp[titles[j]] = tableRowValues[j].innerText;
+	  }
+	  values.push(tmp);
+	}
+
+	values.map(val => rowParser(formula, val));
+	setValues(values);
+	setTitles(Object.keys(values[0]));
+      },
+      false,
+    );
+    reader.readAsText(file);
+  };
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
+    <main>
+      <div>
+        <textarea name="formula" rows={4} cols={40} onChange={formulaChange} />
       </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
+      <div>
+        <ul>
+          <li>Do not use any spaces</li>
+          <li>Formula must start with variable name and then equals</li>
+          <li>Every formula must end with semi-colon</li>
+          <li>Will only work with numerical columns, does not include transfer value</li>
+          <li>Example: test=Acc+Agi;test2=Nat/Pac;test3=(test*2)*test2;</li>
+          <li>Click column title to sort in descending order</li>
+          <li>Must export HTML format files</li>
+        </ul>
       </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+      <div>
+	<input type="file" accept="html" name="data" onChange={uploadToClient} />
+	<button onClick={() => run()}>Run</button>
+      </div>
+      <div>
+	{
+	   values ? (<Table titles={titles} values={values} sortFunc={sortFunc} />) : null
+	}
       </div>
     </main>
   )
