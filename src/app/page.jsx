@@ -436,7 +436,7 @@ export default function Home() {
 	  if (headerInner === "1v1") {
 	    titles.push("onevone");
 	  } else {
-	    title.push(headerInner);
+	    titles.push(headerInner);
 	  }
 	}
 
