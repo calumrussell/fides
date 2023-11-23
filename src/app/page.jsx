@@ -360,12 +360,8 @@ const rowParser = (text, row) =>  {
     const formula = lineSplit[1].replace("1v1", "onevone");
     const expr = parser.parse(formula);
 
-    try {
-      const res = expr.evaluate(row);
-      row[varName] = res;
-    } catch (e) {
-      alert("Formula evaluation failed. Might be due to a missing variable or malformed numerical input.");
-    }
+    const res = expr.evaluate(row);
+    row[varName] = res;
   }
   return row;
 };
@@ -412,7 +408,7 @@ export default function Home() {
 
   const uploadToClient = (event) => {
     if (formula == '') {
-       window.alert('Formula cannot be blank');
+       alert('Formula cannot be blank');
        return;
     } else {
       if (event.target.files && event.target.files[0]) {
@@ -455,9 +451,16 @@ export default function Home() {
 	  values.push(tmp);
 	}
 
-	values.map(val => rowParser(formula, val));
-	setValues(values);
-	setTitles(Object.keys(values[0]));
+	try {
+	  const results = [];
+	  for (let i=0; i < values.length; i++) {
+	    results.push(rowParser(formula, values[i]));
+	  }
+	  setValues(results);
+	  setTitles(Object.keys(results[0]));
+	} catch(e) {
+	  alert("Formula evaluation failed. Might be due to a missing variable or malformed numerical input.");
+	}
       },
       false,
     );
