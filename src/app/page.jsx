@@ -360,8 +360,12 @@ const rowParser = (text, row) =>  {
     const formula = lineSplit[1].replace("1v1", "onevone");
     const expr = parser.parse(formula);
 
-    const res = expr.evaluate(row);
-    row[varName] = res;
+    try {
+      const res = expr.evaluate(row);
+      row[varName] = res;
+    } catch (e) {
+      alert("Formula evaluation failed. Might be due to a missing variable or malformed numerical input.");
+    }
   }
   return row;
 };
