@@ -391,6 +391,7 @@ export default function Home() {
   const [titles, setTitles] = useState([]);
   const [file, setFile] = useState(null);
   const [formula, setFormula] = useState('');
+  const [error, setError] = useState('');
 
   const selectPreloaded = (event) => {
     setFormula(event.target.value);
@@ -459,7 +460,8 @@ export default function Home() {
 	  setValues(results);
 	  setTitles(Object.keys(results[0]));
 	} catch(e) {
-	  alert("Formula evaluation failed. Might be due to a missing variable or malformed numerical input.");
+	  setError("Formula evaluation failed. Might be due to a missing variable or malformed numerical input.");
+	  setTimeout(() => setError(""), 1000);
 	}
       },
       false,
@@ -470,6 +472,7 @@ export default function Home() {
   return (
     <main>
       <div>
+        <p style={{backgroundColor: 'red', color: 'white'}}>{error}</p>
         <textarea name="formula" rows={4} cols={40} value={formula} onChange={formulaChange} />
       </div>
       <div>
