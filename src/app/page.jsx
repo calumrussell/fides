@@ -461,7 +461,7 @@ export default function Home() {
 	  setTitles(Object.keys(results[0]));
 	} catch(e) {
 	  setError("Formula evaluation failed. Might be due to a missing variable or malformed numerical input.");
-	  setTimeout(() => setError(""), 1000);
+	  setTimeout(() => setError(""), 5000);
 	}
       },
       false,
@@ -472,7 +472,7 @@ export default function Home() {
   return (
     <main>
       <div>
-        <p style={{backgroundColor: 'red', color: 'white'}}>{error}</p>
+        <p style={{backgroundColor: 'red', color: 'white', margin: '2rem'}}>{error}</p>
         <textarea name="formula" rows={4} cols={40} value={formula} onChange={formulaChange} />
       </div>
       <div>
