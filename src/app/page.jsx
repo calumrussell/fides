@@ -372,7 +372,7 @@ const Table = ({values, titles, sortFunc}) => {
       <thead>
         <tr>
           {
-            titles.map((t, i) => <th key={i} onClick={() => sortFunc(t)}>{t ? t === 'onevone' ? '1v1': t}</th>)
+            titles.map((t, i) => <th key={i} onClick={() => sortFunc(t)}>{ t === 'onevone' ? '1v1': t }</th>)
           }
         </tr>
       </thead>
