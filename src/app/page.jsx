@@ -357,7 +357,7 @@ const rowParser = (text, row) =>  {
     const lineSplit = lines[i].split("=");
     const varName = lineSplit[0];
 
-    const formula = lineSplit[1];
+    const formula = lineSplit[1].replace("1v1", "onevone");
     const expr = parser.parse(formula);
 
     const res = expr.evaluate(row);
@@ -372,7 +372,7 @@ const Table = ({values, titles, sortFunc}) => {
       <thead>
         <tr>
           {
-            titles.map((t, i) => <th key={i} onClick={() => sortFunc(t)}>{t}</th>)
+            titles.map((t, i) => <th key={i} onClick={() => sortFunc(t)}>{t ? t === 'onevone' ? '1v1': t}</th>)
           }
         </tr>
       </thead>
@@ -432,7 +432,12 @@ export default function Home() {
 	const tableHeaders = parsedDocument.getElementsByTagName("th");
 	const titles = [];
 	for (let i = 0; i < tableHeaders.length; i++) {
-	  titles.push(tableHeaders[i].innerText);
+	  const headerInner = tableHeaders[i].innerText;
+	  if (headerInner === "1v1") {
+	    titles.push("onevone");
+	  } else {
+	    title.push(headerInner);
+	  }
 	}
 
 	const values = [];
