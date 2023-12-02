@@ -1,0 +1,19 @@
+version: '3.7'
+services:
+  fidesfront:
+    build:
+      context: .
+    container_name: fidesfront
+    ports:
+      - 100.111.31.32:4000:3000
+    restart: unless-stopped
+
+  fidestunnel:
+    container_name: fidestunnel
+    image: cloudflare/cloudflared
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${TOKEN}
+
+      
